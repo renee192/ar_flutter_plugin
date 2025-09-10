@@ -1,52 +1,61 @@
-// android/build.gradle  (in your forked ar_flutter_plugin)
+buildscript {
+    // BUMP THIS:
+    ext.kotlin_version = '1.9.24'   // was 1.3.50
 
-plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    repositories {
+        google()
+        mavenCentral()              // replace jcenter()
+    }
+
+    dependencies {
+        // BUMP AGP to match your Flutter/Gradle (8.x) OR simply remove this classpath entirely and let the app drive it.
+        // If you keep it, use a modern AGP (must match your root project):
+        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
 
-android {
-    namespace 'com.cariuslars.ar_flutter_plugin'   // keep any unique package-style name
-    compileSdk 34                                   // 34 or 35 is fine
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()              // replace jcenter()
+    }
+}
 
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace "com.cariuslars.ar_flutter_plugin"
+    compileSdkVersion 34            // was 30; raise to match your app
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
     defaultConfig {
-        minSdk 24                                   // ARCore requirement
-        // targetSdk is inherited from the consuming app; not needed here
+        minSdkVersion 24
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11  // AGP 8 works with 11; your app can run JDK 17
+        sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = '11'
     }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-}
-
-repositories {
-    google()
-    mavenCentral()
 }
 
 dependencies {
-    // Kotlin stdlib (1.9.x). You can omit this; the plugin adds it, but keeping it explicit is safe.
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.24"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    // Latest ARCore client library
+    // Update ARCore + Sceneform to versions that still work with this code:
     implementation "com.google.ar:core:1.33.0"
-
-    // Sceneform (legacy 1.17.x used by the plugin)
     implementation "com.google.ar.sceneform:core:1.17.1"
-    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.17.1"
-    // If your code doesn’t need the 'assets' artifact, you can remove this next line:
     implementation "com.google.ar.sceneform:assets:1.17.1"
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.17.1"
 
     implementation "androidx.appcompat:appcompat:1.6.1"
 
-    // If the plugin uses Google Sign-In (some samples did):
-    implementation "com.google.android.gms:play-services-auth:20.7.0"
+    // Optional: if not needed, you can remove this Google Sign-In line
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
 }
